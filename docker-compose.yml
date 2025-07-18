@@ -4,7 +4,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: pizzacms
+      MYSQL_DATABASE: puppins
       MYSQL_USER: user
       MYSQL_PASSWORD: userpassword
     ports:
@@ -14,7 +14,7 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: ./puppins-backend
       dockerfile: Dockerfile
     restart: always
     depends_on:
@@ -24,11 +24,12 @@ services:
       DATABASE_PORT: 3306
       DATABASE_USER: user
       DATABASE_PASSWORD: userpassword
-      DATABASE_NAME: pizzacms
+      DATABASE_NAME: puppins
+      JWT_SECRET: your-super-secret-jwt-key-here
     ports:
       - "3000:3000"
     volumes:
-      - ./backend:/usr/src/app
+      - ./puppins-backend:/usr/src/app
       - /usr/src/app/node_modules
     command: npm run start:dev
 
