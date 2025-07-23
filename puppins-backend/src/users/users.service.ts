@@ -53,6 +53,8 @@ export class UsersService {
       authProvider: 'google',
       isEmailVerified: true,
     });
+
+    console.log(user);
     return this.userRepository.save(user);
   }
 

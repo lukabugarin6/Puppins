@@ -1,4 +1,5 @@
 import SplashScreenCustomComponent from "@/components/SplashScreen";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import {
   DarkTheme,
@@ -69,6 +70,7 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <AuthProvider>
       <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
           <Stack
             screenOptions={{ headerShown: false }}
@@ -83,6 +85,7 @@ export default function RootLayout() {
           </Stack>
         <StatusBar style={"light"} translucent backgroundColor="transparent" />
       </View>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
