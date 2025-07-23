@@ -1,8 +1,27 @@
-import { Controller, Post, Body, UseGuards, Request, Put, Delete, Get } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Request,
+  Put,
+  Delete,
+  Get,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
-import { RegisterDto, LoginDto, UpdateUserDto } from '../dto/auth.dto';
+import {
+  RegisterDto,
+  LoginDto,
+  UpdateUserDto,
+  GoogleAuthDto,
+} from '../dto/auth.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
 @ApiTags('Authentication')
@@ -29,6 +48,14 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
+  @Post('google')
+  @ApiOperation({ summary: 'Prijava putem Google naloga' })
+  @ApiResponse({ status: 200, description: 'Uspešna prijava' })
+  @ApiResponse({ status: 401, description: 'Nevaljan Google token' })
+  async googleAuth(@Body() googleAuthDto: GoogleAuthDto) {
+    return this.authService.googleAuth(googleAuthDto.idToken);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   @ApiBearerAuth()
@@ -45,7 +72,10 @@ export class AuthController {
   @ApiOperation({ summary: 'Ažuriraj podatke korisnika' })
   @ApiResponse({ status: 200, description: 'Podaci uspešno ažurirani' })
   async updateProfile(@Request() req, @Body() updateUserDto: UpdateUserDto) {
-    const updatedUser = await this.usersService.update(req.user.id, updateUserDto);
+    const updatedUser = await this.usersService.update(
+      req.user.id,
+      updateUserDto,
+    );
     const { password, ...userWithoutPassword } = updatedUser;
     return userWithoutPassword;
   }

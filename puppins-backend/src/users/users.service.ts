@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
@@ -14,7 +18,7 @@ export class UsersService {
   async create(registerDto: RegisterDto): Promise<User> {
     // Proveri da li korisnik već postoji
     const existingUser = await this.userRepository.findOne({
-      where: { email: registerDto.email }
+      where: { email: registerDto.email },
     });
 
     if (existingUser) {
@@ -31,6 +35,39 @@ export class UsersService {
 
   async findById(id: number): Promise<User | null> {
     return this.userRepository.findOne({ where: { id } });
+  }
+
+  async findByGoogleId(googleId: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { googleId } });
+  }
+
+  async createGoogleUser(userData: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    googleId: string;
+    profilePicture?: string;
+  }): Promise<User> {
+    const user = this.userRepository.create({
+      ...userData,
+      authProvider: 'google',
+      isEmailVerified: true,
+    });
+    return this.userRepository.save(user);
+  }
+
+  async linkGoogleAccount(
+    userId: number,
+    googleData: {
+      googleId: string;
+      profilePicture?: string;
+    },
+  ): Promise<User> {
+    await this.userRepository.update(userId, {
+      ...googleData,
+      authProvider: 'hybrid',
+    });
+    return this.findById(userId);
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {

@@ -16,7 +16,11 @@ export class RegisterDto {
   @IsEmail()
   email: string;
 
-  @ApiProperty({ description: 'Lozinka (minimum 6 karaktera)', example: 'password123' })
+  @ApiProperty({
+    description: 'Lozinka (minimum 6 karaktera)',
+    example: 'password123',
+    minimum: 6,
+  })
   @IsNotEmpty()
   @MinLength(6)
   password: string;
@@ -41,7 +45,16 @@ export class UpdateUserDto {
   @IsString()
   lastName?: string;
 
-  @ApiProperty({ description: 'Email adresa', example: 'marko@example.com', required: false })
+  @ApiProperty({
+    description: 'Email adresa',
+    example: 'marko@example.com',
+    required: false,
+  })
   @IsEmail()
   email?: string;
+}
+export class GoogleAuthDto {
+  @IsString()
+  @ApiProperty({ description: 'Google ID token' })
+  idToken: string;
 }
