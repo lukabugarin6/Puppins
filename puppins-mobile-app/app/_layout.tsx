@@ -1,5 +1,5 @@
 import SplashScreenCustomComponent from "@/components/SplashScreen";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import {
   DarkTheme,
@@ -34,13 +34,11 @@ export default function RootLayout() {
   useEffect(() => {
     async function prepare() {
       try {
-        console.log("preparing...");
         await new Promise((resolve) => setTimeout(resolve, 2000));
       } catch (e) {
         console.warn(e);
       } finally {
         setAppIsReady(true);
-        console.log("prepared!");
       }
     }
 
@@ -71,22 +69,33 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <AuthProvider>
-      <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-          <Stack
-            screenOptions={{ headerShown: false }}
-            initialRouteName="index"
-          >
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-            <Stack.Screen name="index" />
-            {/* <Stack.Screen name="login" />
-            <Stack.Screen name="register" />
-            <Stack.Screen name="forgot-password" /> */}
-          </Stack>
-        <StatusBar style={"light"} translucent backgroundColor="transparent" />
-      </View>
+        <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+          <RootNavigator />
+          <StatusBar
+            style={"light"}
+            translucent
+            backgroundColor="transparent"
+          />
+        </View>
       </AuthProvider>
     </ThemeProvider>
   );
 }
+
+const RootNavigator = () => {
+  const { isAuthenticated } = useAuth();
+
+  return (
+    <Stack screenOptions={{ headerShown: false }} initialRouteName="index">
+      <Stack.Protected guard={isAuthenticated}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack.Protected>
+
+      <Stack.Protected guard={!isAuthenticated}>
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      </Stack.Protected>
+      <Stack.Screen name="+not-found" />
+      <Stack.Screen name="index" />
+    </Stack>
+  );
+};

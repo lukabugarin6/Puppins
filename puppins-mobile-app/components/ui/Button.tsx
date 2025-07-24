@@ -29,7 +29,7 @@ const Button: React.FC<ButtonProps> = ({
         isPrimary ? styles.primary : isGhost ? styles.ghost : styles.secondary,
         disabled && styles.disabled
       ]}
-      disabled
+      disabled={disabled}
     >
       <View style={styles.innerContainer}>
         <View style={styles.iconContainer}>

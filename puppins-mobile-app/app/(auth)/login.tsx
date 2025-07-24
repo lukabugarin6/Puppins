@@ -6,10 +6,10 @@ import { animationValues } from "@/constants/AnimationValues";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, View, ActivityIndicator } from "react-native";
-import MailIcon from "../assets/icons/email.svg";
-import GoogleIcon from "../assets/icons/google.svg";
-import KeyIcon from "../assets/icons/key.svg";
-import LoginIcon from "../assets/icons/login.svg";
+import MailIcon from "@/assets/icons/email.svg";
+import GoogleIcon from "@/assets/icons/google.svg";
+import KeyIcon from "@/assets/icons/key.svg";
+import LoginIcon from "@/assets/icons/login.svg";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginScreen() {
@@ -67,8 +67,9 @@ export default function LoginScreen() {
             variant="primary"
             onPress={handleEmailLogin}
             disabled={loading}
-            Icon={(props) => loading ? 
-              <ActivityIndicator color="#fff" size="small" /> : 
+            Icon={(props) => 
+              // loading ? 
+              // <ActivityIndicator color="#fff" size="small" /> : 
               <LoginIcon {...props} color="#fff" />
             }
           />

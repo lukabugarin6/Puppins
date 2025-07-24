@@ -1,80 +1,29 @@
-import Button from "@/components/ui/Button";
-import { CustomText } from "@/components/ui/CustomText";
-import Input from "@/components/ui/Input";
-import { PawTrail } from "@/components/ui/PawTrail";
-import { animationValues } from "@/constants/AnimationValues";
+import SplashScreenCustomComponent from "@/components/SplashScreen";import { useAuth } from "@/contexts/AuthContext";
 import { router } from "expo-router";
-import { useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
-import MailIcon from "../assets/icons/email.svg";
-import GoogleIcon from "../assets/icons/google.svg";
-import KeyIcon from "../assets/icons/key.svg";
-import LoginIcon from "../assets/icons/login.svg";
+import { useEffect } from "react";
+import { View, Text } from "react-native";
 
-export default function LoginScreen() {
-  const [opacities, setOpacities] = useState([]);
+export default function App() {
+  const { isAuthenticated, loading } = useAuth();
 
-  const [progress, setProgress] = useState(0);
-  const [appIsReady, setAppIsReady] = useState(false);
+  useEffect(() => {
+    if (!loading) {
+      if (isAuthenticated) {
+        // Korisnik je ulogovan, idi na tabs
+        router.replace("/(tabs)");
+      } else {
+        // Korisnik nije ulogovan, idi na login
+        router.replace("/(auth)/login");
+      }
+    }
+  }, [isAuthenticated, loading]);
 
-  return (
-    <View style={{ flex: 1, backgroundColor: "#fff", justifyContent: "center", padding: 20, paddingBottom: 80 }}>
-      <View style={{ zIndex: 2 }}>
-        <CustomText type="title" style={{ marginBottom: 4 }}>Welcome!</CustomText>
-        <CustomText type="subtitle-small" style={{ marginBottom: 20 }}>Sign in to continue</CustomText>
-        <Input
-          label="Email"
-          placeholder="Enter your email"
-          secureTextEntry
-          Icon={(props) => <MailIcon {...props} width={16} height={16} />}
-        />
-        <Input
-          label="Password"
-          placeholder="Enter your password"
-          secureTextEntry
-          Icon={(props) => <KeyIcon {...props} />}
-          additionalElement={
-            <Pressable onPress={() => {
-              router.replace("/forgot-password");
-            }}>
-              <CustomText style={{ color: "#548CEB", fontSize: 12 }}>Forgot Password?</CustomText>
-            </Pressable>
-          }
-        />
-        <View style={styles.buttonsWrapper} >
-          <Button
-            title="Login with email"
-            variant="primary"
-            onPress={() => console.log("Login pressed")}
-            Icon={(props) => <LoginIcon {...props} color="#fff" />}
-          />
+  // Loading screen dok se proverava autentifikacija
+  if (loading) {
+    return (
+      <SplashScreenCustomComponent />
+    );
+  }
 
-          <Button
-            title="Register with email"
-            variant="secondary"
-            onPress={() => {
-              router.replace("/register");
-            }}
-            Icon={(props) => <MailIcon {...props} color="#fff" />}
-          />
-          <Button
-            title="Continue with google"
-            variant="ghost"
-            onPress={() => console.log("Login pressed")}
-            Icon={(props) =>
-              <GoogleIcon {...props} width={24} height={24} translateX={-4} />}
-          />
-        </View>
-      </View>
-      <PawTrail animationValues={animationValues} />
-    </View>
-  );
+  return null; // Ovo se neće ni prikazati jer će redirect da se desi
 }
-
-const styles = StyleSheet.create({
-  buttonsWrapper: {
-    flexDirection: "column",
-    marginTop: 30,
-    gap: 10
-  },
-});

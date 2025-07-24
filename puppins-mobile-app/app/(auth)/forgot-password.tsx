@@ -5,9 +5,9 @@ import { PawTrail } from "@/components/ui/PawTrail";
 import { animationValues } from "@/constants/AnimationValues";
 import { router } from "expo-router";
 import { StyleSheet, View } from "react-native";
-import MailIcon from "../assets/icons/email.svg";
-import SendIcon from "../assets/icons/send.svg";
-import UndoIcon from "../assets/icons/undo.svg";
+import MailIcon from "@/assets/icons/email.svg";
+import SendIcon from "@/assets/icons/send.svg";
+import UndoIcon from "@/assets/icons/undo.svg";
 
 export default function ForgotPasswordScreen() {
   return (

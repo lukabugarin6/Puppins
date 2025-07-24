@@ -11,11 +11,11 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import MailIcon from "../assets/icons/email.svg";
-import KeyIcon from "../assets/icons/key.svg";
-import UndoIcon from "../assets/icons/undo.svg";
-import UserIcon from "../assets/icons/user.svg";
-import UsersIcon from "../assets/icons/users.svg";
+import MailIcon from "@/assets/icons/email.svg";
+import KeyIcon from "@/assets/icons/key.svg";
+import UndoIcon from "@/assets/icons/undo.svg";
+import UserIcon from "@/assets/icons/user.svg";
+import UsersIcon from "@/assets/icons/users.svg";
 
 export default function RegisterScreen() {
   return (

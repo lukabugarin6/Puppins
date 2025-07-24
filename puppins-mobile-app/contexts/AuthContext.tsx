@@ -37,7 +37,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Google OAuth konfiguracija
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId: '603107276135-a92l8qerjep5gimdspuoug28mdo148ps.apps.googleusercontent.com',
-
+    scopes: ['openid', 'profile', 'email'],
+    redirectUri: undefined,
   });
 
   // Učitaj korisnika pri pokretanju
