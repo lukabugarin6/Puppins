@@ -35,13 +35,7 @@
           "backgroundColor": "#F4E8D8"
         }
       ],
-      "expo-web-browser",
-      [
-        "expo-auth-session",
-        {
-          "schemes": ["puppins"]
-        }
-      ]
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
