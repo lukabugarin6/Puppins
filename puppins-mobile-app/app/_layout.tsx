@@ -77,11 +77,12 @@ export default function RootLayout() {
             initialRouteName="index"
           >
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
             <Stack.Screen name="index" />
-            <Stack.Screen name="login" />
+            {/* <Stack.Screen name="login" />
             <Stack.Screen name="register" />
-            <Stack.Screen name="forgot-password" />
+            <Stack.Screen name="forgot-password" /> */}
           </Stack>
         <StatusBar style={"light"} translucent backgroundColor="transparent" />
       </View>
