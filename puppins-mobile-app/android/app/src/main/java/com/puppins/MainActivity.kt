@@ -1,4 +1,4 @@
-package com.luka.bugarin.puppins
+package com.puppins
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

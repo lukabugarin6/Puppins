@@ -1,4 +1,4 @@
-package com.luka.bugarin.puppins
+package com.puppins
 
 import android.app.Application
 import android.content.res.Configuration

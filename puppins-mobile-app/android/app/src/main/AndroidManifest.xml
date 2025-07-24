@@ -25,6 +25,8 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="puppins"/>
+        <data android:scheme="com.puppins"/>
+        <data android:scheme="exp+puppins"/>
       </intent-filter>
     </activity>
   </application>
