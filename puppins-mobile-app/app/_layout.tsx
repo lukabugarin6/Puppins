@@ -87,7 +87,11 @@ const RootNavigator = () => {
 
   return (
     <Stack
-      screenOptions={{ headerShown: false }}
+      screenOptions={{
+        headerShown: false,
+        animation: "fade",
+        animationDuration: 250,
+      }}
       initialRouteName="(auth)/login"
     >
       <Stack.Protected guard={isAuthenticated}>

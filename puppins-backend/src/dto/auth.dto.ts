@@ -25,6 +25,14 @@ export class RegisterDto {
   @MinLength(6)
   password: string;
 }
+export class CreateUserDto extends RegisterDto {
+  emailVerificationToken?: string;
+  emailVerificationExpires?: Date;
+  isEmailVerified?: boolean;
+  googleId?: string;
+  profilePicture?: string;
+  authProvider?: 'local' | 'google' | 'hybrid';
+}
 
 export class LoginDto {
   @ApiProperty({ description: 'Email adresa', example: 'marko@example.com' })
@@ -57,4 +65,13 @@ export class GoogleAuthDto {
   @IsString()
   @ApiProperty({ description: 'Google ID token' })
   idToken: string;
+}
+
+export class ResendVerificationDto {
+  @ApiProperty({ 
+    description: 'Email adresa za resend verification', 
+    example: 'marko@example.com' 
+  })
+  @IsEmail()
+  email: string;
 }

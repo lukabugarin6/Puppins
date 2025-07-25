@@ -23,8 +23,15 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   googleLoading: boolean;
+  signUpLoading: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
+  signUp: (
+    firstName: string,
+    lastName: string,
+    email: string,
+    password: string
+  ) => Promise<void>;
   signOut: () => Promise<void>;
   isAuthenticated: boolean;
 }
@@ -39,6 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [signUpLoading, setSignUpLoading] = useState(false);
 
   const redirectUri = AuthSession.makeRedirectUri({
     scheme: "com.puppins",
@@ -69,23 +77,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       const token = await SecureStore.getItemAsync("authToken");
       if (token) {
-        // Proveri token sa backend-om
-        const response = await fetch(`${API_URL}/auth/profile`, {
+        // Proveri token sa backend-om - koristimo axios
+        const response = await axios.get(`${API_URL}/auth/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-        } else {
-          // Token nije valjan, obriši ga
-          await SecureStore.deleteItemAsync("authToken");
-        }
+        setUser(response.data);
       }
     } catch (error) {
       console.error("Error loading user:", error);
+      // Token nije valjan, obriši ga
+      await SecureStore.deleteItemAsync("authToken");
     } finally {
       setLoading(false);
     }
@@ -95,34 +99,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       setGoogleLoading(true);
 
-      const response = await fetch(`${API_URL}/auth/google`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ idToken }),
+      const response = await axios.post(`${API_URL}/auth/google`, {
+        idToken,
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      const data = response.data;
 
-        // Sačuvaj token
-        await SecureStore.setItemAsync("authToken", data.token);
+      // Sačuvaj token
+      await SecureStore.setItemAsync("authToken", data.token);
 
-        // Sačuvaj korisnika
+      console.log(data);
 
-        console.log(data);
+      setUser(data.user);
 
-        setUser(data.user);
-
-        // router.replace("/(tabs)");
-      } else {
-        const error = await response.json();
-        throw new Error(error.message || "Google prijava neuspešna");
-      }
+      router.replace("/(tabs)");
     } catch (error: any) {
       console.error("Google sign in error:", error);
-      alert(error.message || "Greška pri prijavi");
+      const message = error.response?.data?.message || "Greška pri prijavi";
+      alert(message);
     } finally {
       setGoogleLoading(false);
     }
@@ -158,11 +152,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error: any) {
       console.error("Email sign in error:", error);
 
-      console.log(error)
+      console.log(error);
       const message = error.response?.data?.message || "Greška pri prijavi";
       alert(message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const signUp = async (
+    firstName: string,
+    lastName: string,
+    email: string,
+    password: string
+  ) => {
+    try {
+      setSignUpLoading(true);
+
+      const response = await axios.post(`${API_URL}/auth/register`, {
+        firstName,
+        lastName,
+        email,
+        password,
+      });
+
+      const data = response.data;
+
+      await SecureStore.setItemAsync("authToken", data.token);
+      setUser(data.user);
+
+      router.replace("/(tabs)");
+    } catch (error: any) {
+      console.error("Sign up error:", error);
+
+      console.log(error);
+      const message = error.response?.data?.message || "Greška pri registraciji";
+      alert(message);
+    } finally {
+      setSignUpLoading(false);
     }
   };
 
@@ -183,8 +210,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     user,
     loading,
     googleLoading,
+    signUpLoading,
     signInWithGoogle,
     signInWithEmail,
+    signUp,
     signOut,
     isAuthenticated: !!user,
   };

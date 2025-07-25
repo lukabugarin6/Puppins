@@ -9,7 +9,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export default function HomeScreen() {
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
+
+  console.log(user);
   return (
     <ProtectedRoute>
       <ParallaxScrollView
@@ -22,13 +24,13 @@ export default function HomeScreen() {
         }
       >
         <ThemedView style={styles.titleContainer}>
-          <TouchableWithoutFeedback onPress={signOut}>
-            <ThemedText type="title">Log Out!</ThemedText>
-          </TouchableWithoutFeedback>
+            <ThemedText type="title">Hello {user?.firstName} {user?.lastName}!</ThemedText>
           <HelloWave />
         </ThemedView>
         <ThemedView style={styles.stepContainer}>
-          <ThemedText type="subtitle">Step 1: Try it</ThemedText>
+         <TouchableWithoutFeedback onPress={signOut}>
+            <ThemedText style={{ color: "red" }}>Log Out!</ThemedText>
+          </TouchableWithoutFeedback>
           <ThemedText>
             Edit{" "}
             <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}

@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
-import { RegisterDto, UpdateUserDto } from '../dto/auth.dto';
+import { RegisterDto, UpdateUserDto, CreateUserDto } from '../dto/auth.dto';
 
 @Injectable()
 export class UsersService {
@@ -15,8 +15,8 @@ export class UsersService {
     private userRepository: Repository<User>,
   ) {}
 
+  // Metoda za javnu registraciju (prima RegisterDto)
   async create(registerDto: RegisterDto): Promise<User> {
-    // Proveri da li korisnik već postoji
     const existingUser = await this.userRepository.findOne({
       where: { email: registerDto.email },
     });
@@ -26,6 +26,20 @@ export class UsersService {
     }
 
     const user = this.userRepository.create(registerDto);
+    return this.userRepository.save(user);
+  }
+
+  // Nova metoda za internal kreiranje sa verification (prima CreateUserDto)
+  async createWithVerification(createUserDto: CreateUserDto): Promise<User> {
+    const existingUser = await this.userRepository.findOne({
+      where: { email: createUserDto.email },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('Korisnik sa ovim email-om već postoji');
+    }
+
+    const user = this.userRepository.create(createUserDto);
     return this.userRepository.save(user);
   }
 
@@ -39,6 +53,32 @@ export class UsersService {
 
   async findByGoogleId(googleId: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { googleId } });
+  }
+
+  // Nove metode za email verification
+  async findByVerificationToken(token: string): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: { emailVerificationToken: token },
+    });
+  }
+
+  async verifyEmail(userId: number): Promise<void> {
+    await this.userRepository.update(userId, {
+      isEmailVerified: true,
+      emailVerificationToken: null,
+      emailVerificationExpires: null,
+    });
+  }
+
+  async updateVerificationToken(
+    userId: number,
+    token: string,
+    expires: Date,
+  ): Promise<void> {
+    await this.userRepository.update(userId, {
+      emailVerificationToken: token,
+      emailVerificationExpires: expires,
+    });
   }
 
   async createGoogleUser(userData: {

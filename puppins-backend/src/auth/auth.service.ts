@@ -1,9 +1,17 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { 
+  Injectable, 
+  UnauthorizedException, 
+  NotFoundException,
+  ConflictException 
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
-import { RegisterDto, LoginDto } from '../dto/auth.dto';
+import { RegisterDto, LoginDto, CreateUserDto } from '../dto/auth.dto';
 import { User } from '../entities/user.entity';
 import { OAuth2Client } from 'google-auth-library';
+import { EmailService } from '../email/email.service';
+import * as crypto from 'crypto';
+
 @Injectable()
 export class AuthService {
   private oAuth2Client: OAuth2Client;
@@ -11,22 +19,93 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private emailService: EmailService,
   ) {
     this.oAuth2Client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
   }
 
-  async register(
-    registerDto: RegisterDto,
-  ): Promise<{ user: User; token: string }> {
-    const user = await this.usersService.create(registerDto);
-    const token = this.generateToken(user);
+  async register(registerDto: RegisterDto): Promise<{ message: string }> {
+    // Generiši verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationExpires = new Date();
+    verificationExpires.setHours(verificationExpires.getHours() + 24); // 24h
 
-    // Ukloni password iz response-a
-    const { password, ...userWithoutPassword } = user;
+    // Kreiraj CreateUserDto sa dodatnim poljima
+    const createUserDto: CreateUserDto = {
+      ...registerDto,
+      emailVerificationToken: verificationToken,
+      emailVerificationExpires: verificationExpires,
+      isEmailVerified: false,
+      authProvider: 'local',
+    };
+
+    const user = await this.usersService.createWithVerification(createUserDto);
+
+    // Pošalji verification email
+    await this.emailService.sendVerificationEmail(
+      user.email,
+      verificationToken,
+      user.firstName,
+    );
 
     return {
-      user: userWithoutPassword as User,
-      token,
+      message: 'Registracija uspešna! Proveri svoj email za potvrdu naloga.',
+    };
+  }
+
+  async verifyEmail(token: string): Promise<{ message: string; token?: string }> {
+    const user = await this.usersService.findByVerificationToken(token);
+
+    if (!user) {
+      throw new UnauthorizedException('Nevaljan verification token');
+    }
+
+    if (user.emailVerificationExpires < new Date()) {
+      throw new UnauthorizedException('Verification token je istekao');
+    }
+
+    // Potvrdi email
+    await this.usersService.verifyEmail(user.id);
+
+    // Generiši JWT token za automatsku prijavu
+    const jwtToken = this.generateToken(user);
+
+    return {
+      message: 'Email uspešno potvrđen! Dobrodošao/la!',
+      token: jwtToken,
+    };
+  }
+
+  async resendVerification(email: string): Promise<{ message: string }> {
+    const user = await this.usersService.findByEmail(email);
+
+    if (!user) {
+      throw new NotFoundException('Korisnik ne postoji');
+    }
+
+    if (user.isEmailVerified) {
+      throw new ConflictException('Email je već potvrđen');
+    }
+
+    // Generiši novi token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationExpires = new Date();
+    verificationExpires.setHours(verificationExpires.getHours() + 24);
+
+    await this.usersService.updateVerificationToken(
+      user.id,
+      verificationToken,
+      verificationExpires,
+    );
+
+    await this.emailService.sendVerificationEmail(
+      user.email,
+      verificationToken,
+      user.firstName,
+    );
+
+    return {
+      message: 'Verification email je poslat ponovo.',
     };
   }
 
@@ -35,6 +114,13 @@ export class AuthService {
 
     if (!user || !(await user.validatePassword(loginDto.password))) {
       throw new UnauthorizedException('Neispravni podaci za prijavu');
+    }
+
+    // Proveri da li je email potvrđen
+    if (!user.isEmailVerified) {
+      throw new UnauthorizedException(
+        'Email nije potvrđen. Proveri svoju poštu ili zatraži novi verification email.',
+      );
     }
 
     const token = this.generateToken(user);

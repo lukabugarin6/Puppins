@@ -19,20 +19,18 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     if (!loading) {
       if (requireAuth && !isAuthenticated) {
         // Treba auth a nema ga - idi na login
-        console.log('Protected route: redirecting to login');
         router.replace('/(auth)/login');
       } else if (!requireAuth && isAuthenticated) {
         // Ne treba auth a ima ga - idi na tabs
-        console.log('Unprotected route: redirecting to tabs');
         router.replace('/(tabs)');
       }
     }
   }, [isAuthenticated, loading, requireAuth]);
 
   // Prikaži loading dok se proverava auth
-  if (loading) {
-    return <SplashScreenCustomComponent />;
-  }
+  // if (loading) {
+  //   return <SplashScreenCustomComponent />;
+  // }
 
   // Prikaži sadržaj samo ako je auth stanje ispravno
   if (requireAuth && !isAuthenticated) {

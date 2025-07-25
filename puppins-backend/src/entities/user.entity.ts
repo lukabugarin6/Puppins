@@ -43,6 +43,12 @@ export class User {
   @ApiProperty({ description: 'Da li je email verifikovan' })
   isEmailVerified: boolean;
 
+  @Column({ name: 'email_verification_token', nullable: true })
+  emailVerificationToken?: string;
+
+  @Column({ name: 'email_verification_expires', nullable: true })
+  emailVerificationExpires?: Date;
+
   @Column({
     name: 'created_at',
     type: 'timestamp',

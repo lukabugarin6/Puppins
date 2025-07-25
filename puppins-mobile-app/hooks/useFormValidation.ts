@@ -25,11 +25,12 @@ export const useFormValidation = (
     if (!rule) return "";
 
     if (rule.required && !value.trim()) {
-      return `${capitalize(name)} je obavezan`;
+    //   return `${capitalize(name)} je obavezan`;
+      return `Ovo polje je obavezno`;
     }
 
     if (rule.minLength && value.length < rule.minLength) {
-      return `${capitalize(name)} mora imati najmanje ${rule.minLength} karaktera`;
+      return `Ovo polje mora imati najmanje ${rule.minLength} karaktera`;
     }
 
     if (rule.email) {
