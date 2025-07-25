@@ -147,7 +147,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   buttonsWrapper: {
     flexDirection: "column",
-    marginTop: 30,
+    marginTop: 22,
     gap: 10,
   },
 });

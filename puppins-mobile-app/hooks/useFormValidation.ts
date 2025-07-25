@@ -1,4 +1,5 @@
 // hooks/useFormValidation.ts
+import { capitalize } from "@/utils/helpers";
 import { useState } from "react";
 
 type ValidationRule = {
@@ -24,11 +25,11 @@ export const useFormValidation = (
     if (!rule) return "";
 
     if (rule.required && !value.trim()) {
-      return `${name} je obavezan`;
+      return `${capitalize(name)} je obavezan`;
     }
 
     if (rule.minLength && value.length < rule.minLength) {
-      return `${name} mora imati najmanje ${rule.minLength} karaktera`;
+      return `${capitalize(name)} mora imati najmanje ${rule.minLength} karaktera`;
     }
 
     if (rule.email) {

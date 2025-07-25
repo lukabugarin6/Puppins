@@ -35,6 +35,18 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
+    if (Platform.OS === "android") {
+      NavigationBar.setBackgroundColorAsync("red");
+      SystemUI.setBackgroundColorAsync("#fff");
+
+      NavigationBar.setButtonStyleAsync("dark");
+      // colorScheme === "dark"
+      //   ? NavigationBar.setButtonStyleAsync("light")
+      //   : NavigationBar.setButtonStyleAsync("dark");
+    }
+  }, [colorScheme]);
+
+  useEffect(() => {
     async function prepare() {
       try {
         await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -54,17 +66,6 @@ export default function RootLayout() {
     }
   }, [appIsReady, fontsLoaded]);
 
-      useEffect(() => {
-    if (Platform.OS === "android") {
-      NavigationBar.setBackgroundColorAsync("#fff");
-      SystemUI.setBackgroundColorAsync("#fff");
-
-      colorScheme === "dark"
-        ? NavigationBar.setButtonStyleAsync("light")
-        : NavigationBar.setButtonStyleAsync("dark");
-    }
-  }, [colorScheme]);
-
   if (!appIsReady || !fontsLoaded) {
     return null;
   }
@@ -74,11 +75,7 @@ export default function RootLayout() {
       <AuthProvider>
         <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
           <RootNavigator />
-          <StatusBar
-            style={"light"}
-            translucent
-            backgroundColor="transparent"
-          />
+          <StatusBar style={"dark"} translucent backgroundColor="transparent" />
         </View>
       </AuthProvider>
     </ThemeProvider>
@@ -89,7 +86,10 @@ const RootNavigator = () => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <Stack screenOptions={{ headerShown: false }} initialRouteName="(auth)/login">
+    <Stack
+      screenOptions={{ headerShown: false }}
+      initialRouteName="(auth)/login"
+    >
       <Stack.Protected guard={isAuthenticated}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack.Protected>
