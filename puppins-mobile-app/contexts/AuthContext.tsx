@@ -2,10 +2,10 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import * as SecureStore from "expo-secure-store";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import * as AuthSession from "expo-auth-session";
 import axios from "axios";
+import * as Linking from "expo-linking";
 
 // Omogući automatsko zatvaranje browser-a nakon prijave
 WebBrowser.maybeCompleteAuthSession();
@@ -24,6 +24,8 @@ interface AuthContextType {
   loading: boolean;
   googleLoading: boolean;
   signUpLoading: boolean;
+  emailVerificationLoading: boolean;
+  verificationMessage: string;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUp: (
@@ -33,6 +35,8 @@ interface AuthContextType {
     password: string
   ) => Promise<void>;
   signOut: () => Promise<void>;
+  verifyEmail: (token: string) => Promise<void>;
+  resendVerification: (email: string) => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -47,6 +51,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loading, setLoading] = useState(true);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [signUpLoading, setSignUpLoading] = useState(false);
+  const [emailVerificationLoading, setEmailVerificationLoading] =
+    useState(false);
+  const [verificationMessage, setVerificationMessage] = useState("");
 
   const redirectUri = AuthSession.makeRedirectUri({
     scheme: "com.puppins",
@@ -77,12 +84,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       const token = await SecureStore.getItemAsync("authToken");
       if (token) {
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         // Proveri token sa backend-om - koristimo axios
-        const response = await axios.get(`${API_URL}/auth/profile`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(`${API_URL}/auth/profile`);
 
         setUser(response.data);
       }
@@ -178,18 +182,92 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       const data = response.data;
 
-      await SecureStore.setItemAsync("authToken", data.token);
-      setUser(data.user);
+      // Backend sada ne vraća token odmah, već poruku o verifikaciji
+      setVerificationMessage(data.message);
 
-      router.replace("/(tabs)");
+      // Ne redirektuj odmah - čekaj email verifikaciju
+      // alert ili toast sa porukom da korisnik proveri email
+      alert(data.message);
     } catch (error: any) {
       console.error("Sign up error:", error);
-
-      console.log(error);
-      const message = error.response?.data?.message || "Greška pri registraciji";
+      const message =
+        error.response?.data?.message || "Greška pri registraciji";
       alert(message);
     } finally {
       setSignUpLoading(false);
+    }
+  };
+
+  const verifyEmail = async (token: string) => {
+    try {
+      setEmailVerificationLoading(true);
+
+      const response = await axios.get(
+        `${API_URL}/auth/verify-email?token=${token}`
+      );
+      const data = response.data;
+
+      // Sada ćeš dobiti JWT token nakon uspešne verifikacije
+      await SecureStore.setItemAsync("authToken", data.token);
+
+      // Dekoduj token da dobiješ user podatke ili ih zatraži
+      await loadStoredUser(); // funkcija za učitavanje user-a na osnovu token-a
+
+      setVerificationMessage(data.message);
+      alert(data.message);
+
+      router.replace("/(tabs)");
+    } catch (error: any) {
+      console.error("Email verification error:", error);
+      const message =
+        error.response?.data?.message || "Greška pri verifikaciji";
+      alert(message);
+    } finally {
+      setEmailVerificationLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleDeepLink = (url: string) => {
+      if (url.includes("/auth/verify-email")) {
+        const urlParams = new URLSearchParams(url.split("?")[1]);
+        const token = urlParams.get("token");
+        if (token) {
+          verifyEmail(token); // Pozovi verifikaciju automatski
+        }
+      }
+    };
+
+    // Handleuj deep link kada se app otvori
+    Linking.getInitialURL().then((url) => {
+      if (url) handleDeepLink(url);
+    });
+
+    // Handleuj deep link kada je app već otvoren
+    const subscription = Linking.addEventListener("url", ({ url }) => {
+      handleDeepLink(url);
+    });
+
+    return () => subscription?.remove();
+  }, [verifyEmail]);
+
+  const resendVerification = async (email: string) => {
+    try {
+      setEmailVerificationLoading(true);
+
+      const response = await axios.post(`${API_URL}/auth/resend-verification`, {
+        email,
+      });
+
+      const data = response.data;
+      alert(data.message);
+    } catch (error: any) {
+      console.error("Resend verification error:", error);
+      const message =
+        error.response?.data?.message || "Greška pri slanju verifikacije";
+      alert(message);
+    } finally {
+      setEmailVerificationLoading(false);
     }
   };
 
@@ -211,10 +289,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     loading,
     googleLoading,
     signUpLoading,
+    emailVerificationLoading,
+    verificationMessage,
     signInWithGoogle,
     signInWithEmail,
     signUp,
     signOut,
+    verifyEmail,
+    resendVerification,
     isAuthenticated: !!user,
   };
 

@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/adaptive-icon.png",
-    "scheme": "com.puppins",
+    "scheme": "puppins",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -29,9 +29,9 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/puppins-splash-logo.png",
+          "image": "./assets/images/adaptive-icon.png",
           "backgroundColor": "#F4E8D8",
-          "imageWidth": 300
+          "imageWidth": 250
         }
       ],
       "expo-web-browser",

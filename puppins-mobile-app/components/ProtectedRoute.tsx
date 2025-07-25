@@ -9,28 +9,28 @@ interface ProtectedRouteProps {
   requireAuth?: boolean; // true = mora biti ulogovan, false = mora biti odulogovan
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
-  requireAuth = true 
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  requireAuth = true,
 }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, emailVerificationLoading } = useAuth();
 
   useEffect(() => {
     if (!loading) {
       if (requireAuth && !isAuthenticated) {
         // Treba auth a nema ga - idi na login
-        router.replace('/(auth)/login');
+        router.replace("/(auth)/login");
       } else if (!requireAuth && isAuthenticated) {
         // Ne treba auth a ima ga - idi na tabs
-        router.replace('/(tabs)');
+        router.replace("/(tabs)");
       }
     }
   }, [isAuthenticated, loading, requireAuth]);
 
   // Prikaži loading dok se proverava auth
-  // if (loading) {
-  //   return <SplashScreenCustomComponent />;
-  // }
+  if (emailVerificationLoading) {
+    return <SplashScreenCustomComponent />;
+  }
 
   // Prikaži sadržaj samo ako je auth stanje ispravno
   if (requireAuth && !isAuthenticated) {
