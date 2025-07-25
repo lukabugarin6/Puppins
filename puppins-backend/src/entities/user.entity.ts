@@ -23,6 +23,12 @@ export class User {
   @Column({ nullable: true })
   password: string;
 
+  @Column({ name: 'password_reset_token', nullable: true })
+  passwordResetToken?: string;
+
+  @Column({ name: 'password_reset_expires', nullable: true })
+  passwordResetExpires?: Date;
+
   @Column({ name: 'google_id', nullable: true, unique: true })
   @ApiProperty({ description: 'Google ID korisnika' })
   googleId?: string;

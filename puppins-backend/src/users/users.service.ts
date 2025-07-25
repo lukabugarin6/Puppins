@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { RegisterDto, UpdateUserDto, CreateUserDto } from '../dto/auth.dto';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
@@ -27,6 +28,34 @@ export class UsersService {
 
     const user = this.userRepository.create(registerDto);
     return this.userRepository.save(user);
+  }
+
+  async findByPasswordResetToken(token: string): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: { passwordResetToken: token },
+    });
+  }
+
+  async updatePasswordResetToken(
+    userId: number,
+    token: string,
+    expires: Date,
+  ): Promise<void> {
+    await this.userRepository.update(userId, {
+      passwordResetToken: token,
+      passwordResetExpires: expires,
+    });
+  }
+
+  async resetPassword(userId: number, newPassword: string): Promise<void> {
+    // Hash nova lozinka
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await this.userRepository.update(userId, {
+      password: hashedPassword,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+    });
   }
 
   // Nova metoda za internal kreiranje sa verification (prima CreateUserDto)

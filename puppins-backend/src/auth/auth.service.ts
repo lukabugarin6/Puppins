@@ -1,8 +1,8 @@
-import { 
-  Injectable, 
-  UnauthorizedException, 
+import {
+  Injectable,
+  UnauthorizedException,
   NotFoundException,
-  ConflictException 
+  ConflictException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
@@ -53,7 +53,9 @@ export class AuthService {
     };
   }
 
-  async verifyEmail(token: string): Promise<{ message: string; token?: string }> {
+  async verifyEmail(
+    token: string,
+  ): Promise<{ message: string; token?: string }> {
     const user = await this.usersService.findByVerificationToken(token);
 
     if (!user) {
@@ -131,6 +133,59 @@ export class AuthService {
     return {
       user: userWithoutPassword as User,
       token,
+    };
+  }
+
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    const user = await this.usersService.findByEmail(email);
+
+    if (!user) {
+      // Ne otkrivaj da korisnik ne postoji (security best practice)
+      return {
+        message: 'Ako account sa ovim email-om postoji, poslat je reset link.',
+      };
+    }
+
+    // Generiši password reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetExpires = new Date();
+    resetExpires.setHours(resetExpires.getHours() + 1); // 1 sat
+
+    await this.usersService.updatePasswordResetToken(
+      user.id,
+      resetToken,
+      resetExpires,
+    );
+
+    await this.emailService.sendPasswordResetEmail(
+      user.email,
+      resetToken,
+      user.firstName,
+    );
+
+    return {
+      message: 'Ako account sa ovim email-om postoji, poslat je reset link.',
+    };
+  }
+
+  async resetPassword(
+    token: string,
+    newPassword: string,
+  ): Promise<{ message: string }> {
+    const user = await this.usersService.findByPasswordResetToken(token);
+
+    if (!user) {
+      throw new UnauthorizedException('Nevaljan reset token');
+    }
+
+    if (user.passwordResetExpires < new Date()) {
+      throw new UnauthorizedException('Reset token je istekao');
+    }
+
+    await this.usersService.resetPassword(user.id, newPassword);
+
+    return {
+      message: 'Lozinka je uspešno promenjena!',
     };
   }
 

@@ -28,9 +28,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }, [isAuthenticated, loading, requireAuth]);
 
   // Prikaži loading dok se proverava auth
-  if (emailVerificationLoading) {
-    return <SplashScreenCustomComponent />;
-  }
+  // if (emailVerificationLoading) {
+  //   return <SplashScreenCustomComponent />;
+  // }
 
   // Prikaži sadržaj samo ako je auth stanje ispravno
   if (requireAuth && !isAuthenticated) {

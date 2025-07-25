@@ -68,10 +68,38 @@ export class GoogleAuthDto {
 }
 
 export class ResendVerificationDto {
-  @ApiProperty({ 
-    description: 'Email adresa za resend verification', 
-    example: 'marko@example.com' 
+  @ApiProperty({
+    description: 'Email adresa za resend verification',
+    example: 'marko@example.com',
   })
   @IsEmail()
   email: string;
+}
+
+export class ForgotPasswordDto {
+  @ApiProperty({
+    description: 'Email adresa za reset lozinke',
+    example: 'marko@example.com',
+  })
+  @IsEmail()
+  email: string;
+}
+
+export class ResetPasswordDto {
+  @ApiProperty({
+    description: 'Reset token iz email-a',
+    example: 'abc123def456...',
+  })
+  @IsNotEmpty()
+  @IsString()
+  token: string;
+
+  @ApiProperty({
+    description: 'Nova lozinka (minimum 6 karaktera)',
+    example: 'newpassword123',
+    minimum: 6,
+  })
+  @IsNotEmpty()
+  @MinLength(6)
+  newPassword: string;
 }

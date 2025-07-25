@@ -45,6 +45,8 @@ export default function LoginScreen() {
     await signInWithGoogle();
   };
 
+  console.log(googleLoading);
+
   return (
     <ProtectedRoute requireAuth={false}>
       <KeyboardAwareScrollView
@@ -104,7 +106,7 @@ export default function LoginScreen() {
                 title="Login with email"
                 variant="primary"
                 onPress={handleEmailLogin}
-                disabled={loading}
+                disabled={loading || googleLoading}
                 Icon={(props) =>
                   loading ? (
                     <ActivityIndicator color="#fff" size="small" />
@@ -118,7 +120,6 @@ export default function LoginScreen() {
                 title="Register with email"
                 variant="secondary"
                 onPress={() => router.push("/register")}
-                disabled={googleLoading}
                 Icon={(props) => <MailIcon {...props} color="#fff" />}
               />
 

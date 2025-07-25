@@ -25,6 +25,8 @@ interface AuthContextType {
   googleLoading: boolean;
   signUpLoading: boolean;
   emailVerificationLoading: boolean;
+  forgotPasswordLoading: boolean;
+  resetPasswordLoading: boolean;
   verificationMessage: string;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
@@ -37,6 +39,8 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   verifyEmail: (token: string) => Promise<void>;
   resendVerification: (email: string) => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>; // NOVO
+  resetPassword: (token: string, newPassword: string) => Promise<void>; // NOVO
   isAuthenticated: boolean;
 }
 
@@ -54,11 +58,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [emailVerificationLoading, setEmailVerificationLoading] =
     useState(false);
   const [verificationMessage, setVerificationMessage] = useState("");
-
-  const redirectUri = AuthSession.makeRedirectUri({
-    scheme: "com.puppins",
-    path: "/oauth2",
-  });
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
+  const [resetPasswordLoading, setResetPasswordLoading] = useState(false);
 
   // Google OAuth konfiguracija
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
@@ -129,6 +130,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const signInWithGoogle = async () => {
     try {
       setGoogleLoading(true);
+
+      console.log("google loading...")
       await promptAsync();
     } catch (error) {
       console.error("Google sign in prompt error:", error);
@@ -227,13 +230,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const forgotPassword = async (email: string) => {
+    try {
+      setForgotPasswordLoading(true);
+
+      const response = await axios.post(`${API_URL}/auth/forgot-password`, {
+        email,
+      });
+
+      const data = response.data;
+      alert(data.message);
+    } catch (error: any) {
+      console.error("Forgot password error:", error);
+      const message =
+        error.response?.data?.message || "Greška pri slanju reset email-a";
+      alert(message);
+    } finally {
+      setForgotPasswordLoading(false);
+    }
+  };
+
+  const resetPassword = async (token: string, newPassword: string) => {
+    try {
+      setResetPasswordLoading(true);
+
+      const response = await axios.post(`${API_URL}/auth/reset-password`, {
+        token,
+        newPassword,
+      });
+
+      const data = response.data;
+      alert(data.message);
+
+      // Redirektuj na login posle uspešnog reset-a
+      router.replace("/(auth)/login");
+    } catch (error: any) {
+      console.error("Reset password error:", error);
+      const message =
+        error.response?.data?.message || "Greška pri resetovanju lozinke";
+      alert(message);
+    } finally {
+      setResetPasswordLoading(false);
+    }
+  };
+
   useEffect(() => {
     const handleDeepLink = (url: string) => {
       if (url.includes("/auth/verify-email")) {
         const urlParams = new URLSearchParams(url.split("?")[1]);
         const token = urlParams.get("token");
         if (token) {
-          verifyEmail(token); // Pozovi verifikaciju automatski
+          verifyEmail(token);
+        }
+      } else if (url.includes("/auth/reset-password")) {
+        const urlParams = new URLSearchParams(url.split("?")[1]);
+        const token = urlParams.get("token");
+        if (token) {
+          // Redirektuj na reset password screen sa token-om
+          router.push(`/(auth)/forgot-password?token=${token}`);
         }
       }
     };
@@ -249,7 +303,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     });
 
     return () => subscription?.remove();
-  }, [verifyEmail]);
+  }, [verifyEmail, resetPassword]);
 
   const resendVerification = async (email: string) => {
     try {
@@ -285,20 +339,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const value = {
-    user,
-    loading,
-    googleLoading,
-    signUpLoading,
-    emailVerificationLoading,
-    verificationMessage,
-    signInWithGoogle,
-    signInWithEmail,
-    signUp,
-    signOut,
-    verifyEmail,
-    resendVerification,
-    isAuthenticated: !!user,
-  };
+  user,
+  loading,
+  googleLoading,
+  signUpLoading,
+  emailVerificationLoading,
+  forgotPasswordLoading,
+  resetPasswordLoading,
+  verificationMessage,
+  signInWithGoogle,
+  signInWithEmail,
+  signUp,
+  signOut,
+  verifyEmail,
+  resendVerification,
+  forgotPassword,
+  resetPassword,
+  isAuthenticated: !!user,
+};
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
