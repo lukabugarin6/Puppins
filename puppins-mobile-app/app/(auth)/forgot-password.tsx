@@ -17,7 +17,7 @@ export default function ForgotPasswordScreen() {
         backgroundColor: "#fff",
         justifyContent: "center",
         padding: 20,
-        paddingBottom: 80
+        paddingBottom: 80,
       }}
     >
       <View style={{ zIndex: 2 }}>
@@ -41,14 +41,16 @@ export default function ForgotPasswordScreen() {
           <Button
             title="Send instructions"
             variant="primary"
-            onPress={() => console.log("Login pressed")}
+            onPress={() => {
+              // console.log("Login pressed")
+            }}
             Icon={(props) => <SendIcon {...props} color="#fff" />}
           />
           <Button
             title="Back to login"
             variant="secondary"
             onPress={() => {
-                router.replace("/");
+              router.replace("/(auth)/login");
             }}
             Icon={(props) => <UndoIcon {...props} color="#fff" />}
           />

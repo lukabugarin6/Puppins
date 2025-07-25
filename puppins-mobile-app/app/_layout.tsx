@@ -13,6 +13,9 @@ import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useState } from "react";
 import { Platform, View } from "react-native";
 import "react-native-reanimated";
+import * as NavigationBar from "expo-navigation-bar";
+import * as SystemUI from "expo-system-ui";
+
 SplashScreen.preventAutoHideAsync();
 
 SplashScreen.setOptions({
@@ -51,20 +54,20 @@ export default function RootLayout() {
     }
   }, [appIsReady, fontsLoaded]);
 
+      useEffect(() => {
+    if (Platform.OS === "android") {
+      NavigationBar.setBackgroundColorAsync("#fff");
+      SystemUI.setBackgroundColorAsync("#fff");
+
+      colorScheme === "dark"
+        ? NavigationBar.setButtonStyleAsync("light")
+        : NavigationBar.setButtonStyleAsync("dark");
+    }
+  }, [colorScheme]);
+
   if (!appIsReady || !fontsLoaded) {
-    return <SplashScreenCustomComponent />;
+    return null;
   }
-
-  //   useEffect(() => {
-  //   if (Platform.OS === "android") {
-  //     NavigationBar.setBackgroundColorAsync("#fff");
-  //     SystemUI.setBackgroundColorAsync("#fff");
-
-  //     colorScheme === "dark"
-  //       ? NavigationBar.setButtonStyleAsync("light")
-  //       : NavigationBar.setButtonStyleAsync("dark");
-  //   }
-  // }, [colorScheme]);
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
@@ -86,7 +89,7 @@ const RootNavigator = () => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <Stack screenOptions={{ headerShown: false }} initialRouteName="index">
+    <Stack screenOptions={{ headerShown: false }} initialRouteName="(auth)/login">
       <Stack.Protected guard={isAuthenticated}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack.Protected>

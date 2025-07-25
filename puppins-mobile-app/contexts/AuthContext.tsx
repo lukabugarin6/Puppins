@@ -5,6 +5,7 @@ import * as SecureStore from "expo-secure-store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import * as AuthSession from "expo-auth-session";
+import axios from "axios";
 
 // Omogući automatsko zatvaranje browser-a nakon prijave
 WebBrowser.maybeCompleteAuthSession();
@@ -30,29 +31,25 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_URL = "http://192.168.1.100:3000"; // Promeni na tvoj IP za fizički uređaj
+const API_URL = "http://10.0.1.129:3000"; // Promeni na tvoj IP za fizički uređaj
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [googleLoading, setGoogleLoading] = useState(true);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
-
-   const redirectUri = AuthSession.makeRedirectUri({
-    scheme: 'com.puppins',
-    path: '/oauth2',
-    preferLocalhost: true,
+  const redirectUri = AuthSession.makeRedirectUri({
+    scheme: "com.puppins",
+    path: "/oauth2",
   });
-
-  console.log(redirectUri);
 
   // Google OAuth konfiguracija
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId:
-      "603107276135-a92l8qerjep5gimdspuoug28mdo148ps.apps.googleusercontent.com",
-scopes: ['openid', 'profile', 'email'],
+      "603107276135-qkujt5gek43lu0uvveqnh77ukdh3b486.apps.googleusercontent.com",
+    scopes: ["openid", "profile", "email"],
   });
 
   // Učitaj korisnika pri pokretanju
@@ -96,7 +93,7 @@ scopes: ['openid', 'profile', 'email'],
 
   const handleGoogleSignIn = async (idToken: string) => {
     try {
-      setLoading(true);
+      setGoogleLoading(true);
 
       const response = await fetch(`${API_URL}/auth/google`, {
         method: "POST",
@@ -113,10 +110,12 @@ scopes: ['openid', 'profile', 'email'],
         await SecureStore.setItemAsync("authToken", data.token);
 
         // Sačuvaj korisnika
+
+        console.log(data);
+
         setUser(data.user);
 
-        // Navigiraj na home
-        router.replace("/(tabs)");
+        // router.replace("/(tabs)");
       } else {
         const error = await response.json();
         throw new Error(error.message || "Google prijava neuspešna");
@@ -125,19 +124,19 @@ scopes: ['openid', 'profile', 'email'],
       console.error("Google sign in error:", error);
       alert(error.message || "Greška pri prijavi");
     } finally {
-      setLoading(false);
+      setGoogleLoading(false);
     }
   };
 
   const signInWithGoogle = async () => {
     try {
-      setLoading(true);
+      setGoogleLoading(true);
       await promptAsync();
     } catch (error) {
       console.error("Google sign in prompt error:", error);
       alert("Greška pri pokretanju Google prijave");
     } finally {
-      setLoading(false);
+      setGoogleLoading(false);
     }
   };
 
@@ -145,27 +144,23 @@ scopes: ['openid', 'profile', 'email'],
     try {
       setLoading(true);
 
-      const response = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+      const response = await axios.post(`${API_URL}/auth/login`, {
+        email,
+        password,
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      const data = response.data;
 
-        await SecureStore.setItemAsync("authToken", data.token);
-        setUser(data.user);
-        router.replace("/(tabs)");
-      } else {
-        const error = await response.json();
-        throw new Error(error.message || "Prijava neuspešna");
-      }
+      await SecureStore.setItemAsync("authToken", data.token);
+      setUser(data.user);
+
+      router.replace("/(tabs)");
     } catch (error: any) {
       console.error("Email sign in error:", error);
-      alert(error.message || "Greška pri prijavi");
+
+      console.log(error)
+      const message = error.response?.data?.message || "Greška pri prijavi";
+      alert(message);
     } finally {
       setLoading(false);
     }

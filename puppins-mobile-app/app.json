@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "puppins",
+    "name": "Puppins",
     "slug": "puppins",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/adaptive-icon.png",
     "scheme": "com.puppins",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -12,8 +12,9 @@
       "supportsTablet": true
     },
     "android": {
+      "label": "Puppins",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/icon.png",
+        "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
@@ -30,12 +31,16 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/puppins-splash-logo.png",
-          "imageWidth": 250,
-          "resizeMode": "contain",
           "backgroundColor": "#F4E8D8"
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-dev-client",
+        {
+          "addGeneratedScheme": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
   TextInput,
   TextInputProps,
   View,
+  Pressable,
 } from 'react-native';
 import { SvgProps } from 'react-native-svg';
+import { Ionicons } from '@expo/vector-icons';
 
 type InputProps = TextInputProps & {
   label: string;
@@ -20,8 +22,18 @@ const Input: React.FC<InputProps> = ({
   Icon,
   error,
   additionalElement,
+  secureTextEntry,
   ...rest
 }) => {
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible(!isPasswordVisible);
+  };
+
+  // Određujemo da li treba prikazati toggle dugme na osnovu secureTextEntry prop-a
+  const isPasswordField = secureTextEntry === true;
+  
   return (
     <View style={styles.wrapper}>
       <Text style={styles.label}>{label}</Text>
@@ -30,8 +42,20 @@ const Input: React.FC<InputProps> = ({
         <TextInput
           style={styles.input}
           placeholderTextColor="#999"
+          secureTextEntry={isPasswordField && !isPasswordVisible}
           {...rest}
         />
+        
+        {/* Toggle dugme se prikazuje samo ako je secureTextEntry true */}
+        {isPasswordField && (
+          <Pressable onPress={togglePasswordVisibility} style={styles.eyeButton}>
+            <Ionicons 
+              name={isPasswordVisible ? 'eye-outline' : 'eye-off-outline'} 
+              size={20} 
+              color="#777" 
+            />
+          </Pressable>
+        )}
       </View>
 
       {error && <Text style={styles.errorText}>{error}</Text>}
@@ -74,6 +98,10 @@ const styles = StyleSheet.create({
   icon: {
     marginRight: 8,
   },
+  eyeButton: {
+    padding: 8,
+    left: 8,
+  },
   inputError: {
     borderColor: 'red',
   },
@@ -83,6 +111,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -18,
     left: 0,
+    maxWidth: "50%"
   },
   additionalElement: {
     position: 'absolute',

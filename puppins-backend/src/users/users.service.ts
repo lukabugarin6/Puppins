@@ -54,7 +54,6 @@ export class UsersService {
       isEmailVerified: true,
     });
 
-    console.log(user);
     return this.userRepository.save(user);
   }
 

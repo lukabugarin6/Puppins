@@ -8,20 +8,21 @@ import {
   StyleSheet,
   View,
   ScrollView,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
 import MailIcon from "@/assets/icons/email.svg";
 import KeyIcon from "@/assets/icons/key.svg";
 import UndoIcon from "@/assets/icons/undo.svg";
 import UserIcon from "@/assets/icons/user.svg";
 import UsersIcon from "@/assets/icons/users.svg";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export default function RegisterScreen() {
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
+    <KeyboardAwareScrollView
+      contentContainerStyle={{ flexGrow: 1 }}
+      keyboardShouldPersistTaps="handled"
+      enableOnAndroid={true}
+      extraScrollHeight={20}
     >
       <ScrollView
         contentContainerStyle={{
@@ -79,7 +80,7 @@ export default function RegisterScreen() {
               title="Back to login"
               variant="secondary"
               onPress={() => {
-                router.replace("/");
+                router.replace("/(auth)/login");
               }}
               Icon={(props) => <UndoIcon {...props} color="#fff" />}
             />
@@ -87,7 +88,7 @@ export default function RegisterScreen() {
         </View>
         <PawTrail animationValues={animationValues} />
       </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 }
 
