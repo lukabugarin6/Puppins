@@ -12,7 +12,6 @@
       "supportsTablet": true
     },
     "android": {
-      "label": "Puppins",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -31,7 +30,8 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/puppins-splash-logo.png",
-          "backgroundColor": "#F4E8D8"
+          "backgroundColor": "#F4E8D8",
+          "imageWidth": 300
         }
       ],
       "expo-web-browser",
