@@ -125,7 +125,7 @@ export default function RegisterScreen() {
             </CustomText>
 
             <View style={styles.successContainer}>
-              <MailIcon width={48} height={48} color="#548CEB" />
+              <MailIcon width={48} height={48} color="#ef8a32" />
               <CustomText
                 style={{
                   textAlign: "center",
@@ -158,6 +158,12 @@ export default function RegisterScreen() {
 
             <View style={styles.buttonsWrapper}>
               <Button
+                title="Back to login"
+                variant="primary"
+                onPress={handleBackToLogin}
+                Icon={(props) => <UndoIcon {...props} color="#fff" />}
+              />
+              <Button
                 title="Resend email"
                 variant="secondary"
                 onPress={() => resendVerification(registeredEmail)}
@@ -169,13 +175,6 @@ export default function RegisterScreen() {
                     <MailIcon {...props} color="#fff" />
                   )
                 }
-              />
-
-              <Button
-                title="Back to login"
-                variant="ghost"
-                onPress={handleBackToLogin}
-                Icon={(props) => <UndoIcon {...props} color="#666" />}
               />
             </View>
           </View>
@@ -249,7 +248,7 @@ export default function RegisterScreen() {
                   signUpLoading ? (
                     <ActivityIndicator color="#fff" size="small" />
                   ) : (
-                    <UserIcon {...props} color="#fff" />
+                    <MailIcon {...props} color="#fff" />
                   )
                 }
               />

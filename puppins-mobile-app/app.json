@@ -5,9 +5,10 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/adaptive-icon.png",
-    "scheme": "puppins",
+    "scheme": "com.puppins",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "deepLink": true,
     "ios": {
       "supportsTablet": true
     },

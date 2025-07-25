@@ -89,7 +89,7 @@ export class EmailService {
               box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             }
             .header { 
-              background: linear-gradient(135deg, #548CEB 0%, #4A7BD8 100%); 
+              background: linear-gradient(135deg, #ef8a32 0%, #ef8a32 100%); 
               color: white; 
               padding: 30px 20px; 
               text-align: center; 
@@ -98,7 +98,7 @@ export class EmailService {
             .content { padding: 30px 20px; }
             .button { 
               display: inline-block; 
-              background: linear-gradient(135deg, #548CEB 0%, #4A7BD8 100%); 
+              background: linear-gradient(135deg, #ef8a32 0%, #ef8a32 100%); 
               color: white; 
               padding: 14px 28px; 
               text-decoration: none; 
@@ -118,7 +118,7 @@ export class EmailService {
             }
             .note {
               background: #f0f7ff;
-              border-left: 4px solid #548CEB;
+              border-left: 4px solid #ef8a32;
               padding: 15px;
               margin: 20px 0;
               border-radius: 4px;
@@ -128,7 +128,7 @@ export class EmailService {
         <body>
           <div class="container">
             <div class="header">
-              <h1>Welcome to Puppins! 🐕</h1>
+              <h1>Welcome to Puppins! 🐕🐈</h1>
             </div>
             <div class="content">
               <p style="font-size: 18px; margin-bottom: 10px;">Hi ${firstName}!</p>
@@ -136,6 +136,7 @@ export class EmailService {
               <p>To get started, please verify your email address by clicking the button below:</p>
               
               <p style="text-align: center;">
+                ${verificationUrl}
                 <a href="${verificationUrl}" class="button">Verify Email Address</a>
               </p>
               
@@ -231,10 +232,10 @@ export class EmailService {
         <style>
           body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-          .header { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%); color: white; padding: 30px 20px; text-align: center; }
+          .header { background: linear-gradient(135deg, #ef8a32 0%, #ef8a32 100%); color: white; padding: 30px 20px; text-align: center; }
           .content { padding: 30px 20px; }
-          .button { display: inline-block; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: 600; }
-          .note { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px; }
+          .button { display: inline-block; background: linear-gradient(135deg, #ef8a32 0%, #ef8a32 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: 600; }
+          .note { background: #fff3cd; border-left: 4px solid #ef8a32; padding: 15px; margin: 20px 0; border-radius: 4px; }
           .footer { text-align: center; color: #666; font-size: 14px; margin-top: 30px; padding: 20px; background: #f8f9fa; }
         </style>
       </head>

@@ -46,7 +46,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_URL = "http://10.0.1.129:3000"; // Promeni na tvoj IP za fizički uređaj
+const API_URL = "http://192.168.0.7:3000"; // Promeni na tvoj IP za fizički uređaj
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -144,6 +144,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const signInWithEmail = async (email: string, password: string) => {
     try {
       setLoading(true);
+
+      console.log(`${API_URL}/auth/login`)
 
       const response = await axios.post(`${API_URL}/auth/login`, {
         email,
