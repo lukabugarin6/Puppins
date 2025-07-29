@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Puppins",
-    "slug": "puppins",
+    "slug": "puppins", 
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/adaptive-icon.png",
@@ -18,11 +18,27 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.puppins"
+      "package": "com.puppins",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "com.puppins",
+              "host": "*"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "web": {
       "bundler": "metro",
-      "output": "static",
+      "output": "static", 
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
@@ -30,9 +46,9 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/adaptive-icon.png",
+          "image": "./assets/images/adaptive-splash-icon.png",
           "backgroundColor": "#F4E8D8",
-          "imageWidth": 250
+          "imageWidth": 300
         }
       ],
       "expo-web-browser",

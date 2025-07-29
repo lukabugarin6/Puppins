@@ -75,7 +75,7 @@ export default function ForgotPasswordScreen() {
             // Success view
             <>
               <CustomText type="title" style={{ marginBottom: 4 }}>
-                Check your email! 📧
+                Check your email!
               </CustomText>
               <CustomText
                 type="subtitle-small"
@@ -85,7 +85,7 @@ export default function ForgotPasswordScreen() {
               </CustomText>
               
               <View style={styles.successContainer}>
-                <MailIcon width={48} height={48} color="#548CEB" />
+                <MailIcon width={48} height={48} color="#ef8a32" />
                 <CustomText style={{ textAlign: 'center', marginTop: 16, marginBottom: 24 }}>
                   Click the link in your email to reset your password. 
                   The link will expire in 1 hour.
@@ -94,6 +94,12 @@ export default function ForgotPasswordScreen() {
 
               <View style={styles.buttonsWrapper}>
                 <Button
+                  title="Back to login"
+                  variant="primary"
+                  onPress={() => router.replace("/(auth)/login")}
+                  Icon={(props) => <UndoIcon {...props} color="#fff" />}
+                />
+                  <Button
                   title="Resend email"
                   variant="secondary"
                   onPress={() => {
@@ -108,12 +114,6 @@ export default function ForgotPasswordScreen() {
                       <SendIcon {...props} color="#fff" />
                     )
                   }
-                />
-                <Button
-                  title="Back to login"
-                  variant="ghost"
-                  onPress={() => router.replace("/(auth)/login")}
-                  Icon={(props) => <UndoIcon {...props} color="#666" />}
                 />
               </View>
             </>

@@ -20,7 +20,7 @@ export class EmailService {
   }
 
   async sendVerificationEmail(email: string, token: string, firstName: string) {
-    const verificationUrl = `puppins://auth/verify-email?token=${token}`;
+    const verificationUrl = `com.puppins://auth/verify-email?token=${token}`;
 
     // Prověri da li je development mode
     // const isDevelopment = process.env.NODE_ENV !== 'production';
