@@ -261,6 +261,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       alert(data.message);
 
       // Redirektuj na login posle uspešnog reset-a
+      router.dismissAll();
       router.replace("/(auth)/login");
     } catch (error: any) {
       console.error("Reset password error:", error);
@@ -271,40 +272,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setResetPasswordLoading(false);
     }
   };
-
-  useEffect(() => {
-    const handleDeepLink = async (url: string) => {
-      if (url.includes("/reset-password")) {
-        const urlParams = new URLSearchParams(url.split("?")[1]);
-        const token = urlParams.get("token");
-        if (token) {
-          // Redirektuj na reset password screen sa token-om
-          router.push(`/reset-password?token=${token}`);
-        }
-      } else if (url.includes("/verified")) {
-        const urlParams = new URLSearchParams(url.split("?")[1]);
-        const token = urlParams.get("token");
-
-        if (token) {
-          router.push(`/verified?token=${token}`);
-        } else {
-          router.replace("/(auth)/login");
-        }
-      }
-    };
-
-    // Handleuj deep link kada se app otvori
-    Linking.getInitialURL().then((url) => {
-      if (url) handleDeepLink(url);
-    });
-
-    // Handleuj deep link kada je app već otvoren
-    const subscription = Linking.addEventListener("url", ({ url }) => {
-      handleDeepLink(url);
-    });
-
-    return () => subscription?.remove();
-  }, [verifyEmail, resetPassword]);
 
   const resendVerification = async (email: string) => {
     try {

@@ -126,6 +126,18 @@ export class AuthController {
     );
   }
 
+  @Get('reset-password-page')
+  @ApiOperation({ summary: 'Reset password stranica' })
+  @ApiQuery({
+    name: 'token',
+    description: 'Password reset token',
+    example: 'abc123def456...',
+  })
+  async resetPasswordPage(@Query('token') token: string, @Res() res: Response) {
+    // Serviraj HTML stranicu
+    return res.sendFile(join(process.cwd(), 'public', 'reset-password.html'));
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   @ApiBearerAuth()

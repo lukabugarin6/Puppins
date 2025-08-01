@@ -34,6 +34,7 @@ export default function ForgotPasswordScreen() {
       await forgotPassword(values.email.trim());
       setEmailSent(true);
     } catch (error: any) {
+      console.log(error)
       if (error.message?.includes("email")) {
         setFieldError('email', 'Nevaljan email format');
       } else {

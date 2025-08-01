@@ -178,7 +178,7 @@ export class EmailService {
     token: string,
     firstName: string,
   ) {
-    const resetUrl = `puppins://auth/reset-password?token=${token}`;
+    const resetUrl = `http://10.0.1.129:3000/auth/reset-password-page?token=${token}`;
 
     // const isDevelopment = process.env.NODE_ENV !== 'production';
 
