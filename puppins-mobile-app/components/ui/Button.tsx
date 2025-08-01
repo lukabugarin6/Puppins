@@ -7,6 +7,7 @@ type ButtonProps = {
   variant?: "primary" | "secondary" | "ghost";
   onPress: () => void;
   Icon?: React.FC<SvgProps>;
+  disabled?: boolean;
 };
 
 const Button: React.FC<ButtonProps> = ({
@@ -14,6 +15,7 @@ const Button: React.FC<ButtonProps> = ({
   variant = "primary",
   onPress,
   Icon,
+  disabled
 }) => {
   const isPrimary = variant === "primary";
   const isGhost = variant === "ghost";
@@ -25,7 +27,9 @@ const Button: React.FC<ButtonProps> = ({
       style={[
         styles.button,
         isPrimary ? styles.primary : isGhost ? styles.ghost : styles.secondary,
+        disabled && styles.disabled
       ]}
+      disabled={disabled}
     >
       <View style={styles.innerContainer}>
         <View style={styles.iconContainer}>
@@ -52,6 +56,10 @@ const Button: React.FC<ButtonProps> = ({
 };
 
 const styles = StyleSheet.create({
+  disabled: {
+    pointerEvents: "none",
+    opacity: 0.7,
+  },
   button: {
     paddingVertical: 12,
     borderRadius: 8,

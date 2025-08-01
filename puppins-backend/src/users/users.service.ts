@@ -1,8 +1,13 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
-import { RegisterDto, UpdateUserDto } from '../dto/auth.dto';
+import { RegisterDto, UpdateUserDto, CreateUserDto } from '../dto/auth.dto';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
@@ -11,10 +16,10 @@ export class UsersService {
     private userRepository: Repository<User>,
   ) {}
 
+  // Metoda za javnu registraciju (prima RegisterDto)
   async create(registerDto: RegisterDto): Promise<User> {
-    // Proveri da li korisnik već postoji
     const existingUser = await this.userRepository.findOne({
-      where: { email: registerDto.email }
+      where: { email: registerDto.email },
     });
 
     if (existingUser) {
@@ -25,12 +30,114 @@ export class UsersService {
     return this.userRepository.save(user);
   }
 
+  async findByPasswordResetToken(token: string): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: { passwordResetToken: token },
+    });
+  }
+
+  async updatePasswordResetToken(
+    userId: number,
+    token: string,
+    expires: Date,
+  ): Promise<void> {
+    await this.userRepository.update(userId, {
+      passwordResetToken: token,
+      passwordResetExpires: expires,
+    });
+  }
+
+  async resetPassword(userId: number, newPassword: string): Promise<void> {
+    // Hash nova lozinka
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await this.userRepository.update(userId, {
+      password: hashedPassword,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+    });
+  }
+
+  // Nova metoda za internal kreiranje sa verification (prima CreateUserDto)
+  async createWithVerification(createUserDto: CreateUserDto): Promise<User> {
+    const existingUser = await this.userRepository.findOne({
+      where: { email: createUserDto.email },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('Korisnik sa ovim email-om već postoji');
+    }
+
+    const user = this.userRepository.create(createUserDto);
+    return this.userRepository.save(user);
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { email } });
   }
 
   async findById(id: number): Promise<User | null> {
     return this.userRepository.findOne({ where: { id } });
+  }
+
+  async findByGoogleId(googleId: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { googleId } });
+  }
+
+  // Nove metode za email verification
+  async findByVerificationToken(token: string): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: { emailVerificationToken: token },
+    });
+  }
+
+  async verifyEmail(userId: number): Promise<void> {
+    await this.userRepository.update(userId, {
+      isEmailVerified: true,
+      emailVerificationToken: null,
+      emailVerificationExpires: null,
+    });
+  }
+
+  async updateVerificationToken(
+    userId: number,
+    token: string,
+    expires: Date,
+  ): Promise<void> {
+    await this.userRepository.update(userId, {
+      emailVerificationToken: token,
+      emailVerificationExpires: expires,
+    });
+  }
+
+  async createGoogleUser(userData: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    googleId: string;
+    profilePicture?: string;
+  }): Promise<User> {
+    const user = this.userRepository.create({
+      ...userData,
+      authProvider: 'google',
+      isEmailVerified: true,
+    });
+
+    return this.userRepository.save(user);
+  }
+
+  async linkGoogleAccount(
+    userId: number,
+    googleData: {
+      googleId: string;
+      profilePicture?: string;
+    },
+  ): Promise<User> {
+    await this.userRepository.update(userId, {
+      ...googleData,
+      authProvider: 'hybrid',
+    });
+    return this.findById(userId);
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
