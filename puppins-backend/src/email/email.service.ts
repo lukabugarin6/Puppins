@@ -20,7 +20,7 @@ export class EmailService {
   }
 
   async sendVerificationEmail(email: string, token: string, firstName: string) {
-    const verificationUrl = `com.puppins://auth/verify-email?token=${token}`;
+    const verificationUrl = `http://10.0.1.129:3000/auth/verify-email-page?token=${token}`;
 
     // Prověri da li je development mode
     // const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -49,7 +49,7 @@ export class EmailService {
     const mailOptions = {
       from: `"${process.env.FROM_NAME}" <${process.env.FROM_EMAIL}>`,
       to: email,
-      subject: 'Verify your Puppins account 🐕',
+      subject: 'Verify your Puppins account 🐕🐈',
       text: `
         Hi ${firstName}!
         
@@ -128,7 +128,7 @@ export class EmailService {
         <body>
           <div class="container">
             <div class="header">
-              <h1>Welcome to Puppins! 🐕🐈</h1>
+              <h1>Welcome to Puppins!</h1>
             </div>
             <div class="content">
               <p style="font-size: 18px; margin-bottom: 10px;">Hi ${firstName}!</p>
@@ -136,7 +136,6 @@ export class EmailService {
               <p>To get started, please verify your email address by clicking the button below:</p>
               
               <p style="text-align: center;">
-                ${verificationUrl}
                 <a href="${verificationUrl}" class="button">Verify Email Address</a>
               </p>
               
@@ -151,8 +150,7 @@ export class EmailService {
             <div class="footer">
               <p>Best regards,<br><strong>The Puppins Team</strong></p>
               <p style="font-size: 12px; color: #999;">
-                If you're having trouble with the button above, copy and paste this URL into your mobile browser:<br>
-                <span style="word-break: break-all;">${verificationUrl}</span>
+                  This link will work on any device and will automatically open the Puppins app if you have it installed.
               </p>
             </div>
           </div>
@@ -242,7 +240,7 @@ export class EmailService {
       <body>
         <div class="container">
           <div class="header">
-            <h1>Password Reset 🔐</h1>
+            <h1>Password Reset</h1>
           </div>
           <div class="content">
             <p style="font-size: 18px;">Hi ${firstName}!</p>

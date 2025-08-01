@@ -59,7 +59,7 @@ export class AuthService {
     const user = await this.usersService.findByVerificationToken(token);
 
     if (!user) {
-      throw new UnauthorizedException('Nevaljan verification token');
+      throw new UnauthorizedException('Neispravan verification token');
     }
 
     if (user.emailVerificationExpires < new Date()) {

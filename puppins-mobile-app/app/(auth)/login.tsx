@@ -45,8 +45,6 @@ export default function LoginScreen() {
     await signInWithGoogle();
   };
 
-  console.log(googleLoading);
-
   return (
     <ProtectedRoute requireAuth={false}>
       <KeyboardAwareScrollView

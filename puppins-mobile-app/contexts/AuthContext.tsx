@@ -42,11 +42,12 @@ interface AuthContextType {
   forgotPassword: (email: string) => Promise<void>; // NOVO
   resetPassword: (token: string, newPassword: string) => Promise<void>; // NOVO
   isAuthenticated: boolean;
+  loadStoredUser: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_URL = "http://192.168.0.7:3000"; // Promeni na tvoj IP za fizički uređaj
+const API_URL = "http://10.0.1.129:3000"; // Promeni na tvoj IP za fizički uređaj
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -113,8 +114,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       // Sačuvaj token
       await SecureStore.setItemAsync("authToken", data.token);
 
-      console.log(data);
-
       setUser(data.user);
 
       router.replace("/(tabs)");
@@ -131,7 +130,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       setGoogleLoading(true);
 
-      console.log("google loading...")
       await promptAsync();
     } catch (error) {
       console.error("Google sign in prompt error:", error);
@@ -144,8 +142,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const signInWithEmail = async (email: string, password: string) => {
     try {
       setLoading(true);
-
-      console.log(`${API_URL}/auth/login`)
 
       const response = await axios.post(`${API_URL}/auth/login`, {
         email,
@@ -277,19 +273,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   useEffect(() => {
-    const handleDeepLink = (url: string) => {
-      if (url.includes("/auth/verify-email")) {
-        const urlParams = new URLSearchParams(url.split("?")[1]);
-        const token = urlParams.get("token");
-        if (token) {
-          verifyEmail(token);
-        }
-      } else if (url.includes("/auth/reset-password")) {
+    const handleDeepLink = async (url: string) => {
+      if (url.includes("/reset-password")) {
         const urlParams = new URLSearchParams(url.split("?")[1]);
         const token = urlParams.get("token");
         if (token) {
           // Redirektuj na reset password screen sa token-om
-          router.push(`/(auth)/forgot-password?token=${token}`);
+          router.push(`/reset-password?token=${token}`);
+        }
+      } else if (url.includes("/verified")) {
+        const urlParams = new URLSearchParams(url.split("?")[1]);
+        const token = urlParams.get("token");
+
+        if (token) {
+          router.push(`/verified?token=${token}`);
+        } else {
+          router.replace("/(auth)/login");
         }
       }
     };
@@ -341,24 +340,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const value = {
-  user,
-  loading,
-  googleLoading,
-  signUpLoading,
-  emailVerificationLoading,
-  forgotPasswordLoading,
-  resetPasswordLoading,
-  verificationMessage,
-  signInWithGoogle,
-  signInWithEmail,
-  signUp,
-  signOut,
-  verifyEmail,
-  resendVerification,
-  forgotPassword,
-  resetPassword,
-  isAuthenticated: !!user,
-};
+    user,
+    loading,
+    googleLoading,
+    signUpLoading,
+    emailVerificationLoading,
+    forgotPasswordLoading,
+    resetPasswordLoading,
+    verificationMessage,
+    signInWithGoogle,
+    signInWithEmail,
+    signUp,
+    signOut,
+    verifyEmail,
+    resendVerification,
+    forgotPassword,
+    resetPassword,
+    isAuthenticated: !!user,
+    loadStoredUser,
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

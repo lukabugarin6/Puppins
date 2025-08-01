@@ -9,6 +9,7 @@ import {
   Delete,
   Get,
   Query,
+  Res,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -17,6 +18,8 @@ import {
   ApiBearerAuth,
   ApiQuery,
 } from '@nestjs/swagger';
+import { Response } from 'express';
+import { join } from 'path';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import {
@@ -153,6 +156,12 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Nevaljan ili istekao token' })
   async verifyEmail(@Query('token') token: string) {
     return this.authService.verifyEmail(token);
+  }
+
+  @Get('verify-email-page')
+  @ApiOperation({ summary: 'Web stranica za verifikaciju email-a' })
+  verifyEmailPage(@Res() res: Response) {
+    return res.sendFile(join(process.cwd(), 'public', 'verify-email.html'));
   }
 
   @UseGuards(JwtAuthGuard)

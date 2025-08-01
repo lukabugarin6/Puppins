@@ -27,31 +27,38 @@ export default function RegisterScreen() {
   const [showSuccessView, setShowSuccessView] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
 
-  const { values, errors, setValue, validate, setFieldError, clearErrors } =
-    useFormValidation(
-      {
-        firstName: "",
-        lastName: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-      },
-      {
-        firstName: { required: true },
-        lastName: { required: true },
-        email: { required: true, email: true },
-        password: { required: true, minLength: 6 },
-        confirmPassword: {
-          required: true,
-          custom: (value: string) => {
-            if (value !== values.password) {
-              return "Lozinke se ne poklapaju";
-            }
-            return null;
-          },
+  const {
+    values,
+    errors,
+    setValue,
+    validate,
+    setFieldError,
+    clearErrors,
+    clearValues,
+  } = useFormValidation(
+    {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+    {
+      firstName: { required: true },
+      lastName: { required: true },
+      email: { required: true, email: true },
+      password: { required: true, minLength: 6 },
+      confirmPassword: {
+        required: true,
+        custom: (value: string) => {
+          if (value !== values.password) {
+            return "Lozinke se ne poklapaju";
+          }
+          return null;
         },
-      }
-    );
+      },
+    }
+  );
 
   const handleRegister = async () => {
     if (!validate()) return;
@@ -67,6 +74,8 @@ export default function RegisterScreen() {
 
       setRegisteredEmail(values.email);
       setShowSuccessView(true);
+
+      clearValues();
     } catch (error: any) {
       // Server greške
       if (
@@ -83,8 +92,10 @@ export default function RegisterScreen() {
   };
 
   const handleBackToLogin = () => {
-    setShowSuccessView(false); // Reset lokalni state
+    setShowSuccessView(false);
     router.replace("/(auth)/login");
+    clearValues();
+    clearErrors();
   };
 
   useFocusEffect(
@@ -96,6 +107,8 @@ export default function RegisterScreen() {
         // Reset state kada korisnik napusti screen (back dugme, navigacija, itd.)
         setShowSuccessView(false);
         setRegisteredEmail("");
+        clearValues();
+        clearErrors();
       };
     }, [])
   );

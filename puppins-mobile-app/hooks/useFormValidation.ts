@@ -25,7 +25,7 @@ export const useFormValidation = (
     if (!rule) return "";
 
     if (rule.required && !value.trim()) {
-    //   return `${capitalize(name)} je obavezan`;
+      //   return `${capitalize(name)} je obavezan`;
       return `Ovo polje je obavezno`;
     }
 
@@ -81,6 +81,16 @@ export const useFormValidation = (
     setErrors({});
   };
 
+  const clearValues = () => {
+    // Reset na početne vrednosti
+    Object.keys(initialValues).forEach((key) => {
+      setValue(
+        key,
+        typeof initialValues[key] === "string" ? "" : initialValues[key]
+      );
+    });
+  };
+
   return {
     values,
     errors,
@@ -88,5 +98,6 @@ export const useFormValidation = (
     validate,
     setFieldError,
     clearErrors,
+    clearValues,
   };
 };
